@@ -94,7 +94,7 @@ if __name__ == '__main__':
 	if argc == 1:
 		usage(argv[0])
 	for i in range(0, argc):
-		if argv[i] == "-a":
+		if argv[i] == "-a" argv[i] == "--add":
 			if argc != 6:
 				print("not enough arg")
 				sys.exit(-1)
@@ -103,13 +103,13 @@ if __name__ == '__main__':
 				data.append(argv[j])
 			add = True
 
-		elif argv[i] == "-c":
+		elif argv[i] == "-c" or argv[i] == "--connect":
 			device = argv[i+1]
 			print("connect to device : %s" % device)
 			connectdev = True
-		elif argv[i] == "-l" :
+		elif argv[i] == "-l" argv[i] == "--list":
 			listdev = True
-		elif argv[i] == "-h":
+		elif argv[i] == "-h" argv[i] == "--help":
 			usage(argv[0])
 
 	if add is True :
