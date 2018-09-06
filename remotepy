@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+import xml.etree.cElementTree as ET
+from lxml import etree
+
+def spawn_ssh(user, host, port=22):
+	p = subprocess.call(["ssh", user + "@" + host, "-p", str(port)])
+
+xml_stuff = ["name", "user", "ip", "port"]
+
+def create_xml(xml_file, xml_data):
+	open(xml_file, 'a').close()
+	remotepy = ET.Element("remotepy")
+	devices = ET.SubElement(remotepy, "device")
+
+	for i in range(0, len(xml_stuff)):
+		ET.SubElement(devices, xml_stuff[i]).text = xml_data[i]	
+
+	tree = ET.ElementTree(remotepy)
+	tree.write(xml_file)
+
+def update_xml(xml_file, xml_data):
+	# Open original file
+	element_tree = ET.parse(xml_file)
+
+	new_tag = ET.SubElement(element_tree.getroot(), 'device')
+	for i in range(0, len(xml_stuff)):
+		ET.SubElement(new_tag, xml_stuff[i]).text = xml_data[i]
+	indent(element_tree.getroot())
+	element_tree.write(xml_file)
+
+# Here is where I found this function. Anyway should not be public
+# http://effbot.org/zone/element-lib.htm#prettyprint
+def indent(elem, level=0):
+	i = "\n" + level*"  "
+	if len(elem):
+		if not elem.text or not elem.text.strip():
+			elem.text = i + "  "
+	if not elem.tail or not elem.tail.strip():
+		elem.tail = i
+	for elem in elem:
+		indent(elem, level+1)
+	if not elem.tail or not elem.tail.strip():
+		elem.tail = i
+	else:
+		if level and (not elem.tail or not elem.tail.strip()):
+			elem.tail = i
+
+def read_xml(xml_file, device_name=None):
+	tree = etree.parse(xml_file)
+	i = 0
+	if device_name is None:
+		print("===============")
+		for element_device in tree.xpath("/remotepy/device/*"):
+			print("%s\t: %s" % (element_device.tag, element_device.text))
+			if element_device.tag == "port":
+				print("===============")
+	else:
+		i = 0
+		found_device = False
+		for element_device in tree.xpath("/remotepy/device/*"):
+			if device_name == element_device.text:
+				i = 0
+				found_device = True
+			if found_device is True:
+				if i == 1:
+					user = element_device.text
+				elif i == 2:
+					ip = element_device.text
+				elif i == 3:
+					port = element_device.text
+			i += 1
+		return user, ip, port
+
+def usage(pyname):
+	print("usage : %s [args]" % pyname)
+	print(" -a, --add <device|username|ip|port>\tadd device to list")
+	print(" -c, --connect [device]\t\t\tconnect to device")
+	print(" -l, --list\t\t\t\tlist devices")
+
+if __name__ == '__main__':
+	
+	config_file = os.environ['HOME'] + "/.remotepy.xml"
+	add = False
+	listdev = False
+	connectdev = False
+	
+	argv = sys.argv
+	argc = len(argv)
+	
+	data = list()
+	if argc == 1:
+		usage(argv[0])
+	for i in range(0, argc):
+		if argv[i] == "-a":
+			if argc != 6:
+				print("not enough arg")
+				sys.exit(-1)
+
+			for j in range(2, 6):
+				data.append(argv[j])
+			add = True
+
+		elif argv[i] == "-c":
+			device = argv[i+1]
+			print("connect to device : %s" % device)
+			connectdev = True
+		elif argv[i] == "-l" :
+			listdev = True
+		elif argv[i] == "-h":
+			usage(argv[0])
+
+	if add is True :
+		if not os.path.isfile(config_file):
+			create_xml(config_file, data)
+		else : 
+			update_xml(config_file, data)
+
+	if listdev is True:
+		read_xml(config_file)
+
+	if connectdev is True:
+		user, ip, port = read_xml(config_file, device_name=device)
+		spawn_ssh(user, ip, port)
