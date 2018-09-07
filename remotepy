@@ -49,8 +49,14 @@ def indent(elem, level=0):
 			elem.tail = i
 
 def read_xml(xml_file, device_name=None):
+	if not os.path.isfile(config_file):
+		# most of the time is means I don't have set any device here
+		print("[e] config file %s not found" % config_file)
+		sys.exit(-1)
+
 	tree = etree.parse(xml_file)
 	i = 0
+
 	if device_name is None:
 		print("===============")
 		for element_device in tree.xpath("/remotepy/device/*"):
