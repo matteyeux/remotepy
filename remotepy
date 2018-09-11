@@ -21,6 +21,7 @@ def create_xml(xml_file, xml_data):
 	tree = ET.ElementTree(remotepy)
 	tree.write(xml_file)
 
+# it appends the XML
 def update_xml(xml_file, xml_data):
 	# Open original file
 	element_tree = ET.parse(xml_file)
@@ -31,7 +32,7 @@ def update_xml(xml_file, xml_data):
 	indent(element_tree.getroot())
 	element_tree.write(xml_file)
 
-# Here is where I found this function. Anyway should not be public
+# Here is where I found this function.
 # http://effbot.org/zone/element-lib.htm#prettyprint
 def indent(elem, level=0):
 	i = "\n" + level*"  "
@@ -47,10 +48,11 @@ def indent(elem, level=0):
 	else:
 		if level and (not elem.tail or not elem.tail.strip()):
 			elem.tail = i
-
+# read XML file to return username, ip and port
+# to connect to our box
 def read_xml(xml_file, device_name=None):
 	if not os.path.isfile(config_file):
-		# most of the time is means I don't have set any device here
+		# most of the time it means I don't have set any device here
 		print("[e] config file %s not found" % config_file)
 		sys.exit(-1)
 
