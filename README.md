@@ -22,8 +22,8 @@ File is `.remotepy.xml`.
 
 ### list devices
 You can list devices you added with `-l` arg
-```
-remotepy -l
+```bash
+$ remotepy -l
 ===============
 name	: device1
 user	: matteyeux
