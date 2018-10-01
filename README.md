@@ -55,9 +55,10 @@ Last login: Sun May 13 01:28:36 2018 from 216.58.213.174
 ```
 
 ### TODO
-- Add a feature to remove a device
-- Switch to sqlite3
-- tkinter
+- [ ] Windows support
+- [ ] Switch to sqlite3
+- [ ] Add a feature to remove a device (should go with SQLite3)
+- [ ] tkinter
 
 Btw let me know if you can pwn those 2 IPs in the list.
 
