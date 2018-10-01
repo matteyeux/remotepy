@@ -2,11 +2,19 @@
 import sys
 import os
 import subprocess
+import platform
 import xml.etree.cElementTree as ET
 from lxml import etree
 
 def spawn_ssh(user, host, port=22):
-	p = subprocess.call(["ssh", user + "@" + host, "-p", str(port)])
+	# https://bugs.python.org/issue/8557
+	if sys.platform == "win32":
+		system32 = os.path.join(os.environ['SystemRoot'], 'SysNative')
+		ssh_path = os.path.join(system32, 'OpenSSH/ssh.exe')
+	else :
+		ssh_path = "ssh"
+	p = subprocess.call([ssh_path, user + "@" + host, "-p", str(port)])
+
 
 xml_stuff = ["name", "user", "ip", "port"]
 
@@ -90,7 +98,6 @@ def usage(pyname):
 
 if __name__ == '__main__':
 	
-	config_file = os.environ['HOME'] + "/.remotepy.xml"
 	add = False
 	listdev = False
 	connectdev = False
@@ -119,6 +126,11 @@ if __name__ == '__main__':
 			listdev = True
 		elif argv[i] == "-h" or argv[i] == "--help":
 			usage(argv[0])
+
+	if sys.platform == "win32":
+		config_file = os.environ['HOMEPATH'] + "/.remotepy.xml"
+	else :
+		config_file = os.environ['HOME'] + "/.remotepy.xml"
 
 	if add is True :
 		if not os.path.isfile(config_file):
