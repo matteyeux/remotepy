@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-import sys
 import os
+import sys
+import sqlite3
 import subprocess
-import platform
-import xml.etree.cElementTree as ET
-from lxml import etree
 
 def spawn_ssh(user, host, port=22):
 	# https://bugs.python.org/issue/8557
@@ -15,96 +13,71 @@ def spawn_ssh(user, host, port=22):
 		ssh_path = "ssh"
 	p = subprocess.call([ssh_path, user + "@" + host, "-p", str(port)])
 
+def create_sqlite3_db(db_name):
+	conn = sqlite3.connect(db_name)
+	c = conn.cursor()
+	c.execute('''CREATE TABLE devices (device text, user text, ip text, port int)''')
+	conn.commit()
+	conn.close()
 
-xml_stuff = ["name", "user", "ip", "port"]
+def update_sqlite3_db(db_name, sqlite3_data):
+	conn = sqlite3.connect(db_name)
+	c = conn.cursor()
+	sqlite3_cmd = ("INSERT INTO devices VALUES ('{0}','{1}','{2}', '{3}')".format(data[0], data[1], data[2], data[3]))
+	c.execute(sqlite3_cmd)
+	conn.commit()
+	conn.close()
 
-def create_xml(xml_file, xml_data):
-	open(xml_file, 'a').close()
-	remotepy = ET.Element("remotepy")
-	devices = ET.SubElement(remotepy, "device")
+def delete_device(db_name, device_name):
+	conn = sqlite3.connect(db_name)
+	c = conn.cursor()
+	sqlite3_cmd = ("DELETE FROM devices WHERE device='{0}'".format(device_name))
+	c.execute(sqlite3_cmd)
+	conn.commit()
+	conn.close()
 
-	for i in range(0, len(xml_stuff)):
-		ET.SubElement(devices, xml_stuff[i]).text = xml_data[i]	
-
-	tree = ET.ElementTree(remotepy)
-	tree.write(xml_file)
-
-# it appends the XML
-def update_xml(xml_file, xml_data):
-	# Open original file
-	element_tree = ET.parse(xml_file)
-
-	new_tag = ET.SubElement(element_tree.getroot(), 'device')
-	for i in range(0, len(xml_stuff)):
-		ET.SubElement(new_tag, xml_stuff[i]).text = xml_data[i]
-	indent(element_tree.getroot())
-	element_tree.write(xml_file)
-
-# Here is where I found this function.
-# http://effbot.org/zone/element-lib.htm#prettyprint
-def indent(elem, level=0):
-	i = "\n" + level*"  "
-	if len(elem):
-		if not elem.text or not elem.text.strip():
-			elem.text = i + "  "
-	if not elem.tail or not elem.tail.strip():
-		elem.tail = i
-	for elem in elem:
-		indent(elem, level+1)
-	if not elem.tail or not elem.tail.strip():
-		elem.tail = i
-	else:
-		if level and (not elem.tail or not elem.tail.strip()):
-			elem.tail = i
-# read XML file to return username, ip and port
-# to connect to our box
-def read_xml(xml_file, device_name=None):
-	if not os.path.isfile(config_file):
-		# most of the time it means I don't have set any device here
-		print("[e] config file %s not found" % config_file)
-		sys.exit(-1)
-
-	tree = etree.parse(xml_file)
-	i = 0
-
+def read_sqlite3_db(db_name, device_name=None):
+	conn = sqlite3.connect(db_name)
+	c = conn.cursor()
+	user = None
+	ip = None
+	port = 0
 	if device_name is None:
+		cmd = c.execute("SELECT * FROM devices")
+		for row in cmd:
+			print("===============")
+			print("name : %s" % row[0])
+			print("user : %s" % row[1])
+			print("ip   : %s" % row[2])
+			print("port : %s" % row[3])
 		print("===============")
-		for element_device in tree.xpath("/remotepy/device/*"):
-			print("%s\t: %s" % (element_device.tag, element_device.text))
-			if element_device.tag == "port":
-				print("===============")
-	else:
-		i = 0
-		found_device = False
-		for element_device in tree.xpath("/remotepy/device/*"):
-			if device_name == element_device.text:
-				i = 0
-				found_device = True
-			if found_device is True:
-				if i == 1:
-					user = element_device.text
-				elif i == 2:
-					ip = element_device.text
-				elif i == 3:
-					port = element_device.text
-			i += 1
+		conn.close()
+	else :
+		cmd = c.execute("SELECT * FROM devices WHERE device='{0}'".format(device_name))
+		for row in cmd:
+			user = row[1]
+			ip = row[2]
+			port = row[3]
+		conn.close()
 		return user, ip, port
 
 def usage(pyname):
 	print("usage : %s [args]" % pyname)
 	print(" -a, --add <device|username|ip|port>\tadd device to list")
 	print(" -c, --connect [device]\t\t\tconnect to device")
+	print(" -d, --delete [device]\t\t\tdelete device from list")
 	print(" -l, --list\t\t\t\tlist devices")
 
 if __name__ == '__main__':
-	
+
 	add = False
-	listdev = False
-	connectdev = False
-	
+	list_dev = False
+	connect_dev = False
+	delete_dev = False
+
 	argv = sys.argv
 	argc = len(argv)
-	
+
 	data = list()
 	if argc == 1:
 		usage(argv[0])
@@ -119,28 +92,42 @@ if __name__ == '__main__':
 			add = True
 
 		elif argv[i] == "-c" or argv[i] == "--connect":
-			device = argv[i+1]
+			device = argv[i + 1]
 			print("connect to device : %s" % device)
-			connectdev = True
+			connect_dev = True
 		elif argv[i] == "-l" or argv[i] == "--list":
-			listdev = True
+			list_dev = True
+		elif argv[i] == "-d" or argv[i] == "--delete":
+			device = argv[i + 1]
+			delete_dev = True
 		elif argv[i] == "-h" or argv[i] == "--help":
 			usage(argv[0])
 
 	if sys.platform == "win32":
-		config_file = os.environ['HOMEPATH'] + "/.remotepy.xml"
-	else :
-		config_file = os.environ['HOME'] + "/.remotepy.xml"
+		sqlite3_db = os.environ['HOMEPATH'] + "/remotepy.db"
+	else:
+		sqlite3_db = os.environ['HOME'] + "/remotepy.db"
 
-	if add is True :
-		if not os.path.isfile(config_file):
-			create_xml(config_file, data)
-		else : 
-			update_xml(config_file, data)
+	if add is True:
+		if not os.path.isfile(sqlite3_db):
+			create_sqlite3_db(sqlite3_db)
+			update_sqlite3_db(sqlite3_db, data)
+		else:
+			if read_sqlite3_db(sqlite3_db, device_name=data[0])[0] != None:
+				print("[ERROR] a device with name \"%s\" already exists" % data[0])
+			else :
+				update_sqlite3_db(sqlite3_db, data)
 
-	if listdev is True:
-		read_xml(config_file)
+	if list_dev is True:
+		read_sqlite3_db(sqlite3_db)
 
-	if connectdev is True:
-		user, ip, port = read_xml(config_file, device_name=device)
+	if connect_dev is True:
+		user, ip, port = read_sqlite3_db(sqlite3_db, device_name=device)
 		spawn_ssh(user, ip, port)
+
+	if delete_dev is True :
+		if read_sqlite3_db(sqlite3_db, device_name=device)[0] == None:
+			print("[ERROR] device with name \"%s\" does not exist" % device)
+		else :
+			delete_device(sqlite3_db, device)
+			print("[INFO] deleted \"%s\"" % device)
