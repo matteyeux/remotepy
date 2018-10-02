@@ -2,23 +2,22 @@
 
 Simple tool I use, to replace PuTTY for command line interface stuff.
 ```
-usage : remotepy [args]
- -a, --add <device|username|ip|port>	add device to list
- -c, --connect [device]			connect to device
- -l, --list				list devices
+usage : ./remotepy [args]
+ -a, --add <device|username|ip|port>    add device to list
+ -c, --connect [device]                 connect to device
+ -d, --delete [device]                  delete device from list
+ -l, --list                             list devices
 ```
 
 ### add device
 To add a device you have to use `-a` argument with few params :
 ```bash
-               name     username      IP     port
-                 |        |           |       |
-$ remotepy -a device1 matteyeux 17.142.160.59 22
-$ remotepy -a device2 matteyeux 216.58.213.174 2222
+               name     username  IP/domain   port
+                 |        |           |        |
+$ remotepy -a device1 matteyeux 17.142.160.59 2222
+$ remotepy -a device2 matteyeux google.com 22
 ```
-Settings are set in an XML file in your Home directory. 
-
-File is `.remotepy.xml`.
+Settings are set in an SQLite3 database named `remotepy.db`. It should be located your Home directory
 
 ### list devices
 You can list devices you added with `-l` arg
@@ -27,13 +26,13 @@ $ remotepy -l
 ===============
 name	: device1
 user	: matteyeux
-ip	: 17.142.160.59
-port	: 22
+ip	: apple.com
+port	: 2222
 ===============
 name	: device2
 user	: matteyeux
 ip	: 216.58.213.174
-port	: 2222
+port	: 22
 ===============
 ```
 
@@ -55,9 +54,9 @@ Last login: Sun May 13 01:28:36 2018 from 216.58.213.174
 ```
 
 ### TODO
-- [ ] Windows support
-- [ ] Switch to sqlite3
-- [ ] Add a feature to remove a device (should go with SQLite3)
+- [X] Windows support
+- [X] Switch to sqlite3
+- [X] Add a feature to remove a device (should go with SQLite3)
 - [ ] tkinter
 
 Btw let me know if you can pwn those 2 IPs in the list.
