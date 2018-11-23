@@ -125,7 +125,16 @@ if __name__ == '__main__':
 				update_sqlite3_db(sqlite3_db, data)
 
 	if list_dev is True:
-		read_sqlite3_db(sqlite3_db)
+		if argc == 3:
+			device = read_sqlite3_db(sqlite3_db, argv[2])
+			print("===============")
+			print("name : %s" % argv[2])
+			print("user : %s" % device[0])
+			print("ip   : %s" % device[1])
+			print("port : %s" % device[2])
+			print("===============")
+		else:
+			read_sqlite3_db(sqlite3_db)
 
 	if connect_dev is True:
 		user, ip, port = read_sqlite3_db(sqlite3_db, device_name=device)
