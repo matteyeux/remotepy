@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
 		elif argv[i] == "-c" or argv[i] == "--connect":
 			device = argv[i + 1]
-			print("connect to device : %s" % device)
+			print("connecting to device : %s" % device)
 			connect_dev = True
 		elif argv[i] == "-l" or argv[i] == "--list":
 			list_dev = True
@@ -127,18 +127,23 @@ if __name__ == '__main__':
 	if list_dev is True:
 		if argc == 3:
 			device = read_sqlite3_db(sqlite3_db, argv[2])
-			print("===============")
-			print("name : %s" % argv[2])
-			print("user : %s" % device[0])
-			print("ip   : %s" % device[1])
-			print("port : %s" % device[2])
-			print("===============")
+			if device[0] is not None:
+				print("===============")
+				print("name : %s" % argv[2])
+				print("user : %s" % device[0])
+				print("ip   : %s" % device[1])
+				print("port : %s" % device[2])
+				print("===============")
 		else:
 			read_sqlite3_db(sqlite3_db)
 
 	if connect_dev is True:
 		user, ip, port = read_sqlite3_db(sqlite3_db, device_name=device)
-		spawn_ssh(user, ip, port)
+
+		if user is None:
+			print("[ERROR] device not found")
+		else :
+			spawn_ssh(user, ip, port)
 
 	if delete_dev is True :
 		if read_sqlite3_db(sqlite3_db, device_name=device)[0] == None:
