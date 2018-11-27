@@ -48,7 +48,7 @@ def read_sqlite3_db(db_name, device_name=None):
 	ip = None
 	port = 0
 	if device_name is None:
-		cmd = c.execute("SELECT * FROM devices")
+		cmd = c.execute("SELECT * FROM devices ORDER BY device")
 		for row in cmd:
 			print("===============")
 			print("name : %s" % row[0])
