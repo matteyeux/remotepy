@@ -35,6 +35,23 @@ ip	: 216.58.213.174
 port	: 22
 ===============
 ```
+You can also list one device by giving it's name after `-l`. <br>
+
+### update device settings
+
+Use `-u` argument to update your device : `remotepy -u device1 port 22` 
+
+To verify changes, list device info :
+
+```
+$ remotepy -l device1
+===============
+name	: device1
+user	: matteyeux
+ip	: apple.com
+port	: 22
+===============
+```
 
 ### connect to device
 To connect to a device, simply run remotepy with `-c` argument and the name of the device to connect to
