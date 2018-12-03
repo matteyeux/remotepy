@@ -66,9 +66,27 @@ def read_sqlite3_db(db_name, device_name=None):
 		conn.close()
 		return user, ip, port
 
+def update_device(db_name, device_name, comp, value):
+	if os.path.exists(db_name) is False :
+		print("[ERROR] %s not found, you can't update %s" % (db_name, device_name))
+		sys.exit(1)
+
+	device = read_sqlite3_db(sqlite3_db, argv[2])
+	if device[0] is not None:
+		conn = sqlite3.connect(db_name)
+		c = conn.cursor()
+		sqlite3_cmd = ("UPDATE devices SET {0}='{1}' WHERE device='{2}'".format(comp, value, device_name))
+		c.execute(sqlite3_cmd)
+		conn.commit()
+		conn.close()
+	else :
+		print("[ERROR] device %s does not exist" % device_name)
+
+
 def usage(pyname):
 	print("usage : %s [args]" % pyname)
 	print(" -a, --add <device|username|ip|port>\tadd device to list")
+	print(" -u, --update <device|component|value>\tupdate device settings")
 	print(" -c, --connect [device]\t\t\tconnect to device")
 	print(" -d, --delete [device]\t\t\tdelete device from list")
 	print(" -l, --list\t\t\t\tlist devices")
@@ -79,6 +97,7 @@ if __name__ == '__main__':
 	list_dev = False
 	connect_dev = False
 	delete_dev = False
+	update_dev = False
 
 	argv = sys.argv
 	argc = len(argv)
@@ -96,7 +115,12 @@ if __name__ == '__main__':
 			for j in range(2, 6):
 				data.append(argv[j])
 			add = True
-
+		if argv[i] == "-u" or argv[i] == "--update":
+			if argc != 5:
+				print("missing args")
+				usage(argv[0])
+				sys.exit(-1)
+			update_dev = True
 		elif argv[i] == "-c" or argv[i] == "--connect":
 			device = argv[i + 1]
 			print("connecting to device : %s" % device)
@@ -123,6 +147,9 @@ if __name__ == '__main__':
 				print("[ERROR] a device with name \"%s\" already exists" % data[0])
 			else :
 				update_sqlite3_db(sqlite3_db, data)
+
+	if update_dev is True:
+		update_device(sqlite3_db, argv[2], argv[3], argv[4])
 
 	if list_dev is True:
 		if argc == 3:
