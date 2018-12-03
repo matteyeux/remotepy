@@ -85,7 +85,7 @@ def update_device(db_name, device_name, comp, value):
 
 def usage(pyname):
 	print("usage : %s [args]" % pyname)
-	print(" -a, --add <device|username|ip|port>\tadd device to list")
+	print(" -a, --add <device|user|ip|port>\tadd device to list")
 	print(" -u, --update <device|component|value>\tupdate device settings")
 	print(" -c, --connect [device]\t\t\tconnect to device")
 	print(" -d, --delete [device]\t\t\tdelete device from list")
