@@ -122,9 +122,15 @@ if __name__ == '__main__':
 				sys.exit(-1)
 			update_dev = True
 		elif argv[i] == "-c" or argv[i] == "--connect":
-			device = argv[i + 1]
-			print("connecting to device : %s" % device)
-			connect_dev = True
+			if argc != 3:
+				print("missing args")
+				usage(argv[0])
+				sys.exit(-1)
+			else:
+				device = argv[i + 1]
+				print("connecting to device : %s" % device)
+				connect_dev = True
+
 		elif argv[i] == "-l" or argv[i] == "--list":
 			list_dev = True
 		elif argv[i] == "-d" or argv[i] == "--delete":
