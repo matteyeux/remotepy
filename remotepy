@@ -13,6 +13,18 @@ def spawn_ssh(user, host, port=22):
 		ssh_path = "ssh"
 	p = subprocess.call([ssh_path, user + "@" + host, "-p", str(port)])
 
+def ping_host(host):
+	FNULL = open(os.devnull, 'w')
+	p = subprocess.Popen(['fping', '-c', '1', '-t', '250', host], stdout=FNULL, stderr=FNULL)
+	stream = p.communicate()[0]
+	ret = p.returncode
+
+	print('status : ', end='')
+	if ret == 0:
+		print("up")
+	else :
+		print("down")
+
 def create_sqlite3_db(db_name):
 	conn = sqlite3.connect(db_name)
 	c = conn.cursor()
@@ -55,6 +67,8 @@ def read_sqlite3_db(db_name, device_name=None):
 			print("user : %s" % row[1])
 			print("ip   : %s" % row[2])
 			print("port : %s" % row[3])
+			if os.path.isfile("/usr/bin/fping"):
+				ping_host(row[2])
 		print("===============")
 		conn.close()
 	else :
@@ -166,6 +180,8 @@ if __name__ == '__main__':
 				print("user : %s" % device[0])
 				print("ip   : %s" % device[1])
 				print("port : %s" % device[2])
+				if os.path.isfile("/usr/bin/fping"):
+					ping_host(device[1])
 				print("===============")
 		else:
 			read_sqlite3_db(sqlite3_db)
