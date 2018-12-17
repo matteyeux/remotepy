@@ -35,6 +35,24 @@ ip	: 216.58.213.174
 port	: 22
 ===============
 ```
+
+Optionally if fping is installed on your machine, it will check the status of the host like this : 
+```bash
+$ remotepy -l
+===============
+name	: device1
+user	: matteyeux
+ip	: apple.com
+port	: 2222
+status  : down
+===============
+name	: device2
+user	: matteyeux
+ip	: 216.58.213.174
+port	: 22
+status  : up
+===============
+```
 You can also list one device by giving it's name after `-l`. <br>
 
 ### update device settings
