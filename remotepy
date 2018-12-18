@@ -4,6 +4,8 @@ import sys
 import sqlite3
 import subprocess
 
+sqlite_db_name = ".remotepy.db"
+
 def spawn_ssh(user, host, port=22):
 	# https://bugs.python.org/issue/8557
 	if sys.platform == "win32":
@@ -147,9 +149,15 @@ if __name__ == '__main__':
 				sys.exit(-1)
 			update_dev = True
 		elif argv[i] == "-c" or argv[i] == "--connect":
-			device = argv[i + 1]
-			print("connecting to device : %s" % device)
-			connect_dev = True
+			if argc == 3:
+				device = argv[i + 1]
+				print("connecting to device : %s" % device)
+				connect_dev = True
+			else :
+				print("missing args")
+				usage(argv[0])
+				sys.exit(-1)
+
 		elif argv[i] == "-l" or argv[i] == "--list":
 			list_dev = True
 		elif argv[i] == "-d" or argv[i] == "--delete":
@@ -159,9 +167,9 @@ if __name__ == '__main__':
 			usage(argv[0])
 
 	if sys.platform == "win32":
-		sqlite3_db = os.environ['HOMEPATH'] + "/remotepy.db"
+		sqlite3_db = os.environ['HOMEPATH'] + "/" + sqlite_db_name
 	else:
-		sqlite3_db = os.environ['HOME'] + "/remotepy.db"
+		sqlite3_db = os.environ['HOME'] + "/" + sqlite_db_name
 
 	if add is True:
 		if not os.path.isfile(sqlite3_db):
