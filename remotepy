@@ -25,6 +25,7 @@ def ping_host(host):
 	else :
 		print("down")
 
+
 def create_sqlite3_db(db_name):
 	conn = sqlite3.connect(db_name)
 	c = conn.cursor()
@@ -117,34 +118,38 @@ if __name__ == '__main__':
 	argc = len(argv)
 
 	data = list()
+	data_names = ["device", "user", "ip", "port"]
+
 	if argc == 1:
 		usage(argv[0])
 	for i in range(0, argc):
 		if argv[i] == "-a" or argv[i] == "--add":
-			if argc != 6:
+			if argc != 6 and argc != 2:
 				print("missing args")
 				usage(argv[0])
 				sys.exit(-1)
 
-			for j in range(2, 6):
-				data.append(argv[j])
+			# if user does not put any value as arg
+			# we ask for input
+			if argc == 2:
+				for j in range(0, 4):
+					value = input("%s : " % data_names[j])
+					data.append(value)
+			if argc == 6:
+				for j in range(2, 6):
+					data.append(argv[j])
+
 			add = True
-		if argv[i] == "-u" or argv[i] == "--update":
+		elif argv[i] == "-u" or argv[i] == "--update":
 			if argc != 5:
 				print("missing args")
 				usage(argv[0])
 				sys.exit(-1)
 			update_dev = True
 		elif argv[i] == "-c" or argv[i] == "--connect":
-			if argc != 3:
-				print("missing args")
-				usage(argv[0])
-				sys.exit(-1)
-			else:
-				device = argv[i + 1]
-				print("connecting to device : %s" % device)
-				connect_dev = True
-
+			device = argv[i + 1]
+			print("connecting to device : %s" % device)
+			connect_dev = True
 		elif argv[i] == "-l" or argv[i] == "--list":
 			list_dev = True
 		elif argv[i] == "-d" or argv[i] == "--delete":
@@ -176,12 +181,10 @@ if __name__ == '__main__':
 			device = read_sqlite3_db(sqlite3_db, argv[2])
 			if device[0] is not None:
 				print("===============")
-				print("name   : %s" % argv[2])
-				print("user   : %s" % device[0])
-				print("ip     : %s" % device[1])
-				print("port   : %s" % device[2])
-				if os.path.isfile("/usr/bin/fping"):
-					ping_host(device[1])
+				print("name : %s" % argv[2])
+				print("user : %s" % device[0])
+				print("ip   : %s" % device[1])
+				print("port : %s" % device[2])
 				print("===============")
 		else:
 			read_sqlite3_db(sqlite3_db)
