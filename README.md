@@ -93,8 +93,8 @@ Last login: Sun May 13 01:28:36 2018 from 216.58.213.174
 - [X] Switch to sqlite3
 - [X] Add a feature to remove a device (should go with SQLite3)
 - [X] update device settings
-- [ ] host status
-- [ ] (maybe) implement GUI
+- [X] host status
+- [ ] (maybe) implement a PuTTY like GUI
 
 Btw let me know if you can pwn those 2 IPs in the list.
 
