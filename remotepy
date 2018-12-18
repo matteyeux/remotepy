@@ -185,6 +185,8 @@ if __name__ == '__main__':
 				print("user : %s" % device[0])
 				print("ip   : %s" % device[1])
 				print("port : %s" % device[2])
+				if os.path.isfile("/usr/bin/fping"):
+					ping_host(device[1])
 				print("===============")
 		else:
 			read_sqlite3_db(sqlite3_db)
