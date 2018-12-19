@@ -1,6 +1,6 @@
 # remotepy
 
-Simple tool I use, to replace PuTTY for command line interface stuff.
+Simple tool I use, to replace PuTTY for command line stuff.
 ```
 usage : ./remotepy [args]
  -a, --add <device|username|ip|port>    add device to list
@@ -17,7 +17,7 @@ To add a device you have to use `-a` argument with few params :
 $ remotepy -a device1 matteyeux 17.142.160.59 2222
 $ remotepy -a device2 matteyeux google.com 22
 ```
-Settings are set in an SQLite3 database named `remotepy.db`. It should be located your Home directory
+Settings are set in an SQLite3 database named `.remotepy.db`. It should be located your in Home directory for both UNIX and Windows OS's
 
 ### list devices
 You can list devices you added with `-l` arg
@@ -44,13 +44,13 @@ name	: device1
 user	: matteyeux
 ip	: apple.com
 port	: 2222
-status  : down
+status  : down   <----
 ===============
 name	: device2
 user	: matteyeux
 ip	: 216.58.213.174
 port	: 22
-status  : up
+status  : up     <----
 ===============
 ```
 You can also list one device by giving it's name after `-l`. <br>
