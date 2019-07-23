@@ -88,6 +88,26 @@ Last login: Sun May 13 01:28:36 2018 from 216.58.213.174
 ➜  ~ 
 ```
 
+### ZSH autocompletion
+Put this in `~/.zshrc`
+```
+_remotepy() {
+  local cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/remotepy"
+  local hostnames="${cachedir}"/remotepy.txt
+  mkdir -p "${cachedir}"
+  if ! test "$(find "${hostnames}" -mmin -15 2>/dev/null)"; then
+    echo "select device from devices;" | sqlite3 ~/.remotepy.db > "${hostnames}".new
+    if test -s "${hostnames}".new; then
+      mv "${hostnames}"{.new,}
+    else
+      touch "${hostnames}"
+    fi
+  fi
+  compadd $(cat "${hostnames}")
+}
+compdef _remotepy remotepy
+```
+
 ### TODO
 - [X] Windows support
 - [X] Switch to sqlite3
